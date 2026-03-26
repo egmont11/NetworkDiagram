@@ -1,0 +1,26 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+    <system:String x:Key="AppTitle">Editor síťových diagramů</system:String>
+    <system:String x:Key="NewBtn">Nový</system:String>
+    <system:String x:Key="SaveBtn">Uložit</system:String>
+    <system:String x:Key="LoadBtn">Načíst</system:String>
+    <system:String x:Key="ExportBtn">Exportovat PNG</system:String>
+    <system:String x:Key="WireBtn">Kabelové připojení</system:String>
+    <system:String x:Key="WifiBtn">Bezdrátové (WiFi)</system:String>
+    <system:String x:Key="AddTextBtn">Přidat text</system:String>
+    <system:String x:Key="DevicesHeader">Zařízení</system:String>
+    
+    <!-- Edit Dialog -->
+    <system:String x:Key="EditTitle">Upravit zařízení</system:String>
+    <system:String x:Key="DeviceNameLabel">Název zařízení:</system:String>
+    <system:String x:Key="IpLabel">IP adresy (jedna na řádek):</system:String>
+    <system:String x:Key="CancelBtn">Zrušit</system:String>
+    <system:String x:Key="SaveDialogBtn">Uložit</system:String>
+    
+    <!-- Messages -->
+    <system:String x:Key="ExportWhiteBgMsg">Chcete bílé pozadí? (Ne = průhlednost)</system:String>
+    <system:String x:Key="ExportOptionsTitle">Možnosti exportu</system:String>
+    <system:String x:Key="ExportSuccess">Export byl úspěšný!</system:String>
+    <system:String x:Key="EmptyDiagramMsg">Diagram je prázdný.</system:String>
+</ResourceDictionary>

@@ -1,0 +1,58 @@
+[
+  {
+    "Name": "Router",
+    "IconPath": "Assets/router.jpg"
+  },
+  {
+    "Name": "Switch",
+    "IconPath": "Assets/workgroup switch.jpg"
+  },
+  {
+    "Name": "Server",
+    "IconPath": "Assets/fileserver.jpg"
+  },
+  {
+    "Name": "Storage server",
+    "IconPath": "Assets/storage server.jpg"
+  },
+  {
+    "Name": "Personal Computer",
+    "IconPath": "Assets/workstation.jpg"
+  },
+  {
+    "Name": "Access Point",
+    "IconPath": "Assets/accesspoint.jpg"
+  },
+  {
+    "Name": "Antenna",
+    "IconPath": "Assets/antenna.jpg"
+  },
+  {
+    "Name:": "Cloud",
+    "IconPath": "Assets/cloud.jpg"
+  },
+  {
+    "Name": "Dual-Mode AP",
+    "IconPath": "Assets/dual mode ap.jpg"
+  },
+  {
+    "Name": "IP Phone",
+    "IconPath": "Assets/ip phone.jpg"
+  },
+  {
+    "Name": "Modem",
+    "IconPath": "Assets/modem.jpg"
+  },
+  {
+    "Name": "Printer",
+    "IconPath": "Assets/printer.jpg"
+  },
+  {
+    "Name": "Wireless Bridge",
+    "IconPath": "Assets/wireless bridge.jpg"
+  },
+  {
+    "Name": "Wireless Router",
+    "IconPath": "Assets/wireless router.jpg"
+  }
+]
