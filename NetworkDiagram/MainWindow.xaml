@@ -52,8 +52,8 @@
                 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                     <ComboBox x:Name="LangCombo" VerticalAlignment="Center" Width="80" SelectionChanged="LangCombo_SelectionChanged" Margin="10,0,0,0">
-                        <ComboBoxItem Tag="en">EN</ComboBoxItem>
-                        <ComboBoxItem Tag="cs" IsSelected="True">CZ</ComboBoxItem>
+                        <ComboBoxItem Tag="en" IsSelected="True">EN</ComboBoxItem>
+                        <ComboBoxItem Tag="cs">CZ</ComboBoxItem>
                     </ComboBox>
                 </StackPanel>
             </DockPanel>

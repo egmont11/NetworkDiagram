@@ -100,7 +100,7 @@ namespace NetworkDiagram
 
         private void AddDeviceToCanvas(DeviceTemplate template, double x, double y)
         {
-            var placed = new PlacedDevice { Name = template.Name, IconPath = template.IconPath, X = x, Y = y };
+            var placed = new PlacedDevice { Name = template.Name, TemplateName = template.Name, IconPath = template.IconPath, X = x, Y = y };
             _currentDiagram.Devices.Add(placed);
             RenderDevice(placed);
         }
@@ -445,6 +445,13 @@ namespace NetworkDiagram
                 var model = JsonSerializer.Deserialize<DiagramSaveModel>(json);
                 if (model == null) return;
                 _currentDiagram = new Diagram { Devices = model.Devices };
+
+                foreach (var device in _currentDiagram.Devices)
+                {
+                    var template = _deviceTemplates.FirstOrDefault(t => t.Name == device.TemplateName);
+                    if (template != null) device.IconPath = template.IconPath;
+                }
+
                 DiagramCanvas.Children.Clear();
                 _connectionLines.Clear();
                 _deviceElements.Clear();

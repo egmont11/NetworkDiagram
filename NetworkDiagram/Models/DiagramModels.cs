@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Text.Json.Serialization;
 
 namespace NetworkDiagram.Models
 {
@@ -30,6 +31,9 @@ namespace NetworkDiagram.Models
             set { _name = value; OnPropertyChanged(); } 
         }
 
+        public string TemplateName { get; set; } = string.Empty;
+
+        [JsonIgnore]
         public string IconPath { get; set; } = string.Empty;
 
         public double X 
