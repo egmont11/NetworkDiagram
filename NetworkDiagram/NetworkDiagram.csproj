@@ -12,6 +12,7 @@
       <None Update="devices.json">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
+      <Resource Include="Assets\**" />
       <None Update="Assets\**">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>

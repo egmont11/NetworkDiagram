@@ -4,7 +4,8 @@
         Title="{DynamicResource EditTitle}" Height="380" Width="420"
         WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
         Background="{StaticResource BgWhite}"
-        WindowStyle="ThreeDBorderWindow">
+        WindowStyle="ThreeDBorderWindow"
+        Icon="/Assets/router.jpg">
     <Grid Margin="25">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
