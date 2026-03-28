@@ -1,13 +1,11 @@
-using System;
-using System.Linq;
 using System.Windows;
 using NetworkDiagram.Models;
 
 namespace NetworkDiagram
 {
-    public partial class EditDeviceWindow : Window
+    public partial class EditDeviceWindow
     {
-        private PlacedDevice _device;
+        private readonly PlacedDevice _device;
 
         public EditDeviceWindow(PlacedDevice device)
         {
@@ -20,7 +18,7 @@ namespace NetworkDiagram
         private void Save_Click(object sender, RoutedEventArgs e)
         {
             _device.Name = NameBox.Text;
-            _device.IpAddresses = IpBox.Text.Split(new[] { Environment.NewLine, "\n", "\r" }, StringSplitOptions.RemoveEmptyEntries).ToList();
+            _device.IpAddresses = IpBox.Text.Split([Environment.NewLine, "\n", "\r"], StringSplitOptions.RemoveEmptyEntries).ToList();
             DialogResult = true;
             Close();
         }

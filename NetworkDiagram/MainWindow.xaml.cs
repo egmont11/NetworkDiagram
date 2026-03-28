@@ -1,9 +1,5 @@
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -16,13 +12,13 @@ using Path = System.IO.Path;
 
 namespace NetworkDiagram
 {
-    public partial class MainWindow : Window
+    public partial class MainWindow
     {
-        private List<DeviceTemplate> _deviceTemplates = new List<DeviceTemplate>();
-        private Diagram _currentDiagram = new Diagram();
+        private List<DeviceTemplate> _deviceTemplates = [];
+        private Diagram _currentDiagram = new();
         
         // Selection & Dragging
-        private HashSet<FrameworkElement> _selectedElements = new HashSet<FrameworkElement>();
+        private readonly HashSet<FrameworkElement> _selectedElements = [];
         private Point _dragStartPoint;
         private bool _isDraggingDevices;
         private bool _isSelectingArea;
@@ -31,8 +27,8 @@ namespace NetworkDiagram
         private ConnectionType? _activeTool;
         private PlacedDevice? _firstDeviceForConnection;
 
-        private Dictionary<Connection, Line> _connectionLines = new Dictionary<Connection, Line>();
-        private Dictionary<PlacedDevice, FrameworkElement> _deviceElements = new Dictionary<PlacedDevice, FrameworkElement>();
+        private readonly Dictionary<Connection, Line> _connectionLines = new();
+        private readonly Dictionary<PlacedDevice, FrameworkElement> _deviceElements = new();
 
         public MainWindow()
         {
@@ -44,40 +40,42 @@ namespace NetworkDiagram
         {
             try
             {
-                if (File.Exists("devices.json"))
+                if (!File.Exists("devices.json")) return;
+                
+                var json = File.ReadAllText("devices.json");
+                _deviceTemplates = JsonSerializer.Deserialize<List<DeviceTemplate>>(json) ?? [];
+                
+                foreach (var t in _deviceTemplates.Where(t => !string.IsNullOrEmpty(t.IconPath)))
                 {
-                    string json = File.ReadAllText("devices.json");
-                    _deviceTemplates = JsonSerializer.Deserialize<List<DeviceTemplate>>(json) ?? new List<DeviceTemplate>();
-                    foreach(var t in _deviceTemplates)
-                    {
-                        if (!string.IsNullOrEmpty(t.IconPath)) t.IconPath = Path.GetFullPath(t.IconPath);
-                    }
-                    ToolboxList.ItemsSource = _deviceTemplates;
+                    t.IconPath = Path.GetFullPath(t.IconPath);
                 }
+                
+                ToolboxList.ItemsSource = _deviceTemplates;
             }
             catch (Exception ex) { MessageBox.Show($"Error loading templates: {ex.Message}"); }
         }
 
-        private string GetLocalizedString(string key) => Application.Current.Resources[key] as string ?? key;
+        private static string GetLocalizedString(string key) => Application.Current.Resources[key] as string ?? key;
 
         private void LangCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (LangCombo.SelectedItem is ComboBoxItem item && item.Tag is string lang)
+            if (LangCombo.SelectedItem is not ComboBoxItem { Tag: string lang }) return;
+            
+            var dict = new ResourceDictionary
             {
-                var dict = new ResourceDictionary();
-                dict.Source = new Uri($"Localization/Strings.{lang}.xaml", UriKind.Relative);
+                Source = new Uri($"Localization/Strings.{lang}.xaml", UriKind.Relative)
+            };
 
-                // Replace the existing localization dictionary
-                var oldDict = Application.Current.Resources.MergedDictionaries.FirstOrDefault(d => d.Source != null && d.Source.OriginalString.Contains("Localization/Strings."));
-                if (oldDict != null) Application.Current.Resources.MergedDictionaries.Remove(oldDict);
-                Application.Current.Resources.MergedDictionaries.Add(dict);
-            }
+            // Replace the existing localization dictionary
+            var oldDict = Application.Current.Resources.MergedDictionaries.FirstOrDefault(d => d.Source != null && d.Source.OriginalString.Contains("Localization/Strings."));
+            if (oldDict != null) Application.Current.Resources.MergedDictionaries.Remove(oldDict);
+            Application.Current.Resources.MergedDictionaries.Add(dict);
         }
 
         #region Drag and Drop (Toolbox to Canvas)
         private void Toolbox_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (sender is ListBox listBox && listBox.SelectedItem is DeviceTemplate template)
+            if (sender is ListBox { SelectedItem: DeviceTemplate template } listBox)
                 DragDrop.DoDragDrop(listBox, template, DragDropEffects.Copy);
         }
 
@@ -89,12 +87,11 @@ namespace NetworkDiagram
 
         private void DiagramCanvas_Drop(object sender, DragEventArgs e)
         {
-            if (e.Data.GetDataPresent(typeof(DeviceTemplate)))
-            {
-                var template = (DeviceTemplate)e.Data.GetData(typeof(DeviceTemplate));
-                Point dropPoint = e.GetPosition(DiagramCanvas);
-                AddDeviceToCanvas(template, dropPoint.X, dropPoint.Y);
-            }
+            if (!e.Data.GetDataPresent(typeof(DeviceTemplate))) return;
+            
+            var template = (DeviceTemplate)e.Data.GetData(typeof(DeviceTemplate));
+            var dropPoint = e.GetPosition(DiagramCanvas);
+            AddDeviceToCanvas(template, dropPoint.X, dropPoint.Y);
         }
         #endregion
 
@@ -118,18 +115,26 @@ namespace NetworkDiagram
             Canvas.SetLeft(container, device.X);
             Canvas.SetTop(container, device.Y);
 
-            device.PropertyChanged += (s, e) => {
-                if (e.PropertyName == nameof(PlacedDevice.X)) Canvas.SetLeft(container, device.X);
-                if (e.PropertyName == nameof(PlacedDevice.Y)) Canvas.SetTop(container, device.Y);
+            device.PropertyChanged += (s, e) =>
+            {
+                switch (e.PropertyName)
+                {
+                    case nameof(PlacedDevice.X):
+                        Canvas.SetLeft(container, device.X);
+                        break;
+                    case nameof(PlacedDevice.Y):
+                        Canvas.SetTop(container, device.Y);
+                        break;
+                }
             };
 
             container.MouseDown += Device_MouseDown;
-            container.MouseLeftButtonDown += (s, e) => { 
-                if (e.ClickCount == 2) {
-                    StopDragging();
-                    EditDevice(device);
-                    e.Handled = true;
-                }
+            container.MouseLeftButtonDown += (s, e) =>
+            {
+                if (e.ClickCount != 2) return;
+                StopDragging();
+                EditDevice(device);
+                e.Handled = true;
             };
 
             _deviceElements[device] = container;
@@ -146,36 +151,35 @@ namespace NetworkDiagram
 
         private void Device_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (sender is FrameworkElement element && element.Tag is PlacedDevice device)
+            if (sender is not FrameworkElement { Tag: PlacedDevice device } element) return;
+            
+            if (_activeTool != null)
             {
-                if (_activeTool != null)
-                {
-                    HandleConnectionTool(device, element);
-                    e.Handled = true;
-                    return;
-                }
-
-                // Handle Selection
-                if (!Keyboard.IsKeyDown(Key.LeftCtrl) && !Keyboard.IsKeyDown(Key.RightCtrl))
-                {
-                    if (!_selectedElements.Contains(element))
-                    {
-                        ClearSelection();
-                        SelectElement(element);
-                    }
-                }
-                else
-                {
-                    if (_selectedElements.Contains(element)) DeselectElement(element);
-                    else SelectElement(element);
-                }
-
-                // Start Dragging
-                _isDraggingDevices = true;
-                _dragStartPoint = e.GetPosition(DiagramCanvas);
-                DiagramCanvas.CaptureMouse();
+                HandleConnectionTool(device, element);
                 e.Handled = true;
+                return;
             }
+
+            // Handle Selection
+            if (!Keyboard.IsKeyDown(Key.LeftCtrl) && !Keyboard.IsKeyDown(Key.RightCtrl))
+            {
+                if (!_selectedElements.Contains(element))
+                {
+                    ClearSelection();
+                    SelectElement(element);
+                }
+            }
+            else
+            {
+                if (_selectedElements.Contains(element)) DeselectElement(element);
+                else SelectElement(element);
+            }
+
+            // Start Dragging
+            _isDraggingDevices = true;
+            _dragStartPoint = e.GetPosition(DiagramCanvas);
+            DiagramCanvas.CaptureMouse();
+            e.Handled = true;
         }
 
         private void SelectElement(FrameworkElement element)
@@ -196,15 +200,16 @@ namespace NetworkDiagram
         private void DeselectElement(FrameworkElement element)
         {
             _selectedElements.Remove(element);
-            if (element is Border b)
+            switch (element)
             {
-                b.BorderBrush = Brushes.Transparent;
-                b.Background = Brushes.Transparent;
-            }
-            else if (element is Line l)
-            {
-                l.StrokeThickness = 3;
-                l.Opacity = 1.0;
+                case Border b:
+                    b.BorderBrush = Brushes.Transparent;
+                    b.Background = Brushes.Transparent;
+                    break;
+                case Line l:
+                    l.StrokeThickness = 3;
+                    l.Opacity = 1.0;
+                    break;
             }
         }
 
@@ -233,14 +238,14 @@ namespace NetworkDiagram
 
         private void DiagramCanvas_MouseMove(object sender, MouseEventArgs e)
         {
-            Point currentPoint = e.GetPosition(DiagramCanvas);
+            var currentPoint = e.GetPosition(DiagramCanvas);
 
             if (_isSelectingArea)
             {
-                double x = Math.Min(_selectionStartPoint.X, currentPoint.X);
-                double y = Math.Min(_selectionStartPoint.Y, currentPoint.Y);
-                double w = Math.Abs(_selectionStartPoint.X - currentPoint.X);
-                double h = Math.Abs(_selectionStartPoint.Y - currentPoint.Y);
+                var x = Math.Min(_selectionStartPoint.X, currentPoint.X);
+                var y = Math.Min(_selectionStartPoint.Y, currentPoint.Y);
+                var w = Math.Abs(_selectionStartPoint.X - currentPoint.X);
+                var h = Math.Abs(_selectionStartPoint.Y - currentPoint.Y);
 
                 Canvas.SetLeft(SelectionRect, x);
                 Canvas.SetTop(SelectionRect, y);
@@ -248,10 +253,10 @@ namespace NetworkDiagram
                 SelectionRect.Height = h;
 
                 // Real-time selection preview
-                Rect selectionBounds = new Rect(x, y, w, h);
+                var selectionBounds = new Rect(x, y, w, h);
                 foreach (var border in _deviceElements.Values)
                 {
-                    Rect elementBounds = new Rect(Canvas.GetLeft(border), Canvas.GetTop(border), border.ActualWidth, border.ActualHeight);
+                    var elementBounds = new Rect(Canvas.GetLeft(border), Canvas.GetTop(border), border.ActualWidth, border.ActualHeight);
                     if (selectionBounds.IntersectsWith(elementBounds))
                     {
                         if (!_selectedElements.Contains(border)) SelectElement(border);
@@ -266,7 +271,7 @@ namespace NetworkDiagram
                 // Also preview for lines
                 foreach (var line in _connectionLines.Values)
                 {
-                    Rect lineBounds = new Rect(
+                    var lineBounds = new Rect(
                         Math.Min(line.X1, line.X2),
                         Math.Min(line.Y1, line.Y2),
                         Math.Abs(line.X1 - line.X2),
@@ -284,8 +289,8 @@ namespace NetworkDiagram
             }
             else if (_isDraggingDevices && e.LeftButton == MouseButtonState.Pressed)
             {
-                double deltaX = currentPoint.X - _dragStartPoint.X;
-                double deltaY = currentPoint.Y - _dragStartPoint.Y;
+                var deltaX = currentPoint.X - _dragStartPoint.X;
+                var deltaY = currentPoint.Y - _dragStartPoint.Y;
 
                 foreach (var element in _selectedElements)
                 {
@@ -303,7 +308,7 @@ namespace NetworkDiagram
         {
             if (_isSelectingArea)
             {
-                Rect selectionBounds = new Rect(
+                var selectionBounds = new Rect(
                     Canvas.GetLeft(SelectionRect),
                     Canvas.GetTop(SelectionRect),
                     SelectionRect.Width,
@@ -311,7 +316,7 @@ namespace NetworkDiagram
 
                 foreach (var border in _deviceElements.Values)
                 {
-                    Rect elementBounds = new Rect(Canvas.GetLeft(border), Canvas.GetTop(border), border.ActualWidth, border.ActualHeight);
+                    var elementBounds = new Rect(Canvas.GetLeft(border), Canvas.GetTop(border), border.ActualWidth, border.ActualHeight);
                     if (selectionBounds.IntersectsWith(elementBounds)) SelectElement(border);
                 }
             }
@@ -353,7 +358,7 @@ namespace NetworkDiagram
                 StrokeThickness = 3,
                 Tag = conn
             };
-            if (conn.Type == ConnectionType.Wifi) line.StrokeDashArray = new DoubleCollection { 2, 2 };
+            if (conn.Type == ConnectionType.Wifi) line.StrokeDashArray = [2, 2];
 
             UpdateLinePosition(conn, line);
             
@@ -372,60 +377,68 @@ namespace NetworkDiagram
 
         private void UpdateLinePosition(Connection conn, Line line)
         {
-            if (_deviceElements.TryGetValue(conn.StartDevice, out var startElem) && 
-                _deviceElements.TryGetValue(conn.EndDevice, out var endElem))
-            {
-                if (startElem.ActualWidth == 0) startElem.UpdateLayout();
-                if (endElem.ActualWidth == 0) endElem.UpdateLayout();
+            if (!_deviceElements.TryGetValue(conn.StartDevice, out var startElem) ||
+                !_deviceElements.TryGetValue(conn.EndDevice, out var endElem)) return;
+            
+            if (startElem.ActualWidth == 0) startElem.UpdateLayout();
+            if (endElem.ActualWidth == 0) endElem.UpdateLayout();
 
-                line.X1 = conn.StartDevice.X + (startElem.ActualWidth / 2);
-                line.Y1 = conn.StartDevice.Y + 24;
-                line.X2 = conn.EndDevice.X + (endElem.ActualWidth / 2);
-                line.Y2 = conn.EndDevice.Y + 24;
-            }
+            line.X1 = conn.StartDevice.X + (startElem.ActualWidth / 2);
+            line.Y1 = conn.StartDevice.Y + 24;
+            line.X2 = conn.EndDevice.X + (endElem.ActualWidth / 2);
+            line.Y2 = conn.EndDevice.Y + 24;
         }
 
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Delete && _selectedElements.Count > 0)
+            switch (e.Key)
             {
-                foreach (var el in _selectedElements.ToList())
+                case Key.Delete when _selectedElements.Count > 0:
                 {
-                    if (el is Line line && el.Tag is Connection conn)
+                    foreach (var el in _selectedElements.ToList())
                     {
-                        _currentDiagram.Connections.Remove(conn);
-                        _connectionLines.Remove(conn);
-                        DiagramCanvas.Children.Remove(line);
-                    }
-                    else if (el is Border border && border.Tag is PlacedDevice device)
-                    {
-                        _currentDiagram.Devices.Remove(device);
-                        _deviceElements.Remove(device);
-                        var toRemove = _currentDiagram.Connections.Where(c => c.StartDevice == device || c.EndDevice == device).ToList();
-                        foreach (var c in toRemove)
+                        switch (el)
                         {
-                            if (_connectionLines.TryGetValue(c, out var l)) DiagramCanvas.Children.Remove(l);
-                            _currentDiagram.Connections.Remove(c);
-                            _connectionLines.Remove(c);
+                            case Line line when el.Tag is Connection conn:
+                                _currentDiagram.Connections.Remove(conn);
+                                _connectionLines.Remove(conn);
+                                DiagramCanvas.Children.Remove(line);
+                                break;
+                            case Border { Tag: PlacedDevice device } border:
+                            {
+                                _currentDiagram.Devices.Remove(device);
+                                _deviceElements.Remove(device);
+                                var toRemove = _currentDiagram.Connections.Where(c => c.StartDevice == device || c.EndDevice == device).ToList();
+                                foreach (var c in toRemove)
+                                {
+                                    if (_connectionLines.TryGetValue(c, out var l)) DiagramCanvas.Children.Remove(l);
+                                    _currentDiagram.Connections.Remove(c);
+                                    _connectionLines.Remove(c);
+                                }
+                                DiagramCanvas.Children.Remove(border);
+                                break;
+                            }
                         }
-                        DiagramCanvas.Children.Remove(border);
                     }
+                    _selectedElements.Clear();
+                    break;
                 }
-                _selectedElements.Clear();
+                case Key.Escape:
+                    ResetConnectionTool(); StopDragging(); ClearSelection();
+                    break;
             }
-            else if (e.Key == Key.Escape) { ResetConnectionTool(); StopDragging(); ClearSelection(); }
         }
 
         private void EditDevice(PlacedDevice device)
         {
             var dialog = new EditDeviceWindow(device);
             dialog.ShowDialog();
-            if (_deviceElements.TryGetValue(device, out var elem))
-            {
-                elem.UpdateLayout();
-                var attached = _currentDiagram.Connections.Where(c => c.StartDevice == device || c.EndDevice == device).ToList();
-                foreach(var c in attached) if (_connectionLines.TryGetValue(c, out var l)) UpdateLinePosition(c, l);
-            }
+            
+            if (!_deviceElements.TryGetValue(device, out var elem)) return;
+            
+            elem.UpdateLayout();
+            var attached = _currentDiagram.Connections.Where(c => c.StartDevice == device || c.EndDevice == device).ToList();
+            foreach(var c in attached) if (_connectionLines.TryGetValue(c, out var l)) UpdateLinePosition(c, l);
         }
 
         #region Toolbar Events
@@ -441,48 +454,46 @@ namespace NetworkDiagram
         private void SaveDiagram_Click(object sender, RoutedEventArgs e)
         {
             var sfd = new SaveFileDialog { Filter = "Network Diagram (*.ndjson)|*.ndjson" };
-            if (sfd.ShowDialog() == true)
-            {
-                var model = new DiagramSaveModel {
-                    Devices = _currentDiagram.Devices,
-                    Connections = _currentDiagram.Connections.Select(c => new ConnectionSaveModel {
-                        StartIndex = _currentDiagram.Devices.IndexOf(c.StartDevice),
-                        EndIndex = _currentDiagram.Devices.IndexOf(c.EndDevice),
-                        Type = c.Type
-                    }).ToList()
-                };
-                string json = JsonSerializer.Serialize(model, new JsonSerializerOptions { WriteIndented = true });
-                File.WriteAllText(sfd.FileName, json);
-            }
+            if (sfd.ShowDialog() != true) return;
+            
+            var model = new DiagramSaveModel {
+                Devices = _currentDiagram.Devices,
+                Connections = _currentDiagram.Connections.Select(c => new ConnectionSaveModel {
+                    StartIndex = _currentDiagram.Devices.IndexOf(c.StartDevice),
+                    EndIndex = _currentDiagram.Devices.IndexOf(c.EndDevice),
+                    Type = c.Type
+                }).ToList()
+            };
+            
+            var json = JsonSerializer.Serialize(model, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(sfd.FileName, json);
         }
 
         private void LoadDiagram_Click(object sender, RoutedEventArgs e)
         {
             var ofd = new OpenFileDialog { Filter = "Network Diagram (*.ndjson)|*.ndjson" };
-            if (ofd.ShowDialog() == true)
+            if (ofd.ShowDialog() != true) return;
+            
+            var json = File.ReadAllText(ofd.FileName);
+            var model = JsonSerializer.Deserialize<DiagramSaveModel>(json);
+            if (model == null) return;
+            _currentDiagram = new Diagram { Devices = model.Devices };
+
+            foreach (var device in _currentDiagram.Devices)
             {
-                string json = File.ReadAllText(ofd.FileName);
-                var model = JsonSerializer.Deserialize<DiagramSaveModel>(json);
-                if (model == null) return;
-                _currentDiagram = new Diagram { Devices = model.Devices };
+                var template = _deviceTemplates.FirstOrDefault(t => t.Name == device.TemplateName);
+                if (template != null) device.IconPath = template.IconPath;
+            }
 
-                foreach (var device in _currentDiagram.Devices)
-                {
-                    var template = _deviceTemplates.FirstOrDefault(t => t.Name == device.TemplateName);
-                    if (template != null) device.IconPath = template.IconPath;
-                }
-
-                DiagramCanvas.Children.Clear();
-                _connectionLines.Clear();
-                _deviceElements.Clear();
-                ClearSelection();
-                foreach (var device in _currentDiagram.Devices) RenderDevice(device);
-                foreach (var cModel in model.Connections)
-                {
-                    var conn = new Connection { StartDevice = _currentDiagram.Devices[cModel.StartIndex], EndDevice = _currentDiagram.Devices[cModel.EndIndex], Type = cModel.Type };
-                    _currentDiagram.Connections.Add(conn);
-                    RenderConnection(conn);
-                }
+            DiagramCanvas.Children.Clear();
+            _connectionLines.Clear();
+            _deviceElements.Clear();
+            ClearSelection();
+            foreach (var device in _currentDiagram.Devices) RenderDevice(device);
+            foreach (var conn in model.Connections.Select(cModel => new Connection { StartDevice = _currentDiagram.Devices[cModel.StartIndex], EndDevice = _currentDiagram.Devices[cModel.EndIndex], Type = cModel.Type }))
+            {
+                _currentDiagram.Connections.Add(conn);
+                RenderConnection(conn);
             }
         }
 
@@ -504,14 +515,14 @@ namespace NetworkDiagram
             var result = MessageBox.Show(GetLocalizedString("ExportWhiteBgMsg"), GetLocalizedString("ExportOptionsTitle"), MessageBoxButton.YesNoCancel);
             if (result == MessageBoxResult.Cancel) return;
 
-            bool whiteBg = result == MessageBoxResult.Yes;
+            var whiteBg = result == MessageBoxResult.Yes;
 
             // 1. Find content bounds
             double minX = double.MaxValue, minY = double.MaxValue, maxX = double.MinValue, maxY = double.MinValue;
             foreach (var border in _deviceElements.Values)
             {
-                double x = Canvas.GetLeft(border);
-                double y = Canvas.GetTop(border);
+                var x = Canvas.GetLeft(border);
+                var y = Canvas.GetTop(border);
                 minX = Math.Min(minX, x);
                 minY = Math.Min(minY, y);
                 maxX = Math.Max(maxX, x + border.ActualWidth);
@@ -525,16 +536,16 @@ namespace NetworkDiagram
                 maxY = Math.Max(maxY, Math.Max(line.Y1, line.Y2));
             }
 
-            double margin = 20;
+            const double margin = 20;
             minX -= margin; minY -= margin; maxX += margin; maxY += margin;
-            double width = Math.Max(1, maxX - minX);
-            double height = Math.Max(1, maxY - minY);
+            var width = Math.Max(1, maxX - minX);
+            var height = Math.Max(1, maxY - minY);
 
             try
             {
-                RenderTargetBitmap rtb = new RenderTargetBitmap((int)width, (int)height, 96, 96, PixelFormats.Pbgra32);
-                DrawingVisual dv = new DrawingVisual();
-                using (DrawingContext dc = dv.RenderOpen())
+                var rtb = new RenderTargetBitmap((int)width, (int)height, 96, 96, PixelFormats.Pbgra32);
+                var dv = new DrawingVisual();
+                using (var dc = dv.RenderOpen())
                 {
                     if (whiteBg) dc.DrawRectangle(Brushes.White, null, new Rect(0, 0, width, height));
                     dc.PushTransform(new TranslateTransform(-minX, -minY));
@@ -543,23 +554,26 @@ namespace NetworkDiagram
                     {
                         if (child == SelectionRect || !(child is Visual v) || ((UIElement)child).Visibility != Visibility.Visible) continue;
                         
-                        double left = Canvas.GetLeft((UIElement)child);
-                        double top = Canvas.GetTop((UIElement)child);
+                        var left = Canvas.GetLeft((UIElement)child);
+                        var top = Canvas.GetTop((UIElement)child);
                         
-                        if (child is Line line)
+                        switch (child)
                         {
-                            dc.DrawLine(new Pen(line.Stroke, line.StrokeThickness) { DashStyle = new DashStyle(line.StrokeDashArray, 0) }, 
-                                        new Point(line.X1, line.Y1), new Point(line.X2, line.Y2));
-                        }
-                        else if (child is FrameworkElement fe)
-                        {
-                            VisualBrush vb = new VisualBrush(fe) { Stretch = Stretch.None };
-                            dc.DrawRectangle(vb, null, new Rect(left, top, fe.ActualWidth, fe.ActualHeight));
+                            case Line line:
+                                dc.DrawLine(new Pen(line.Stroke, line.StrokeThickness) { DashStyle = new DashStyle(line.StrokeDashArray, 0) }, 
+                                    new Point(line.X1, line.Y1), new Point(line.X2, line.Y2));
+                                break;
+                            case FrameworkElement fe:
+                            {
+                                var vb = new VisualBrush(fe) { Stretch = Stretch.None };
+                                dc.DrawRectangle(vb, null, new Rect(left, top, fe.ActualWidth, fe.ActualHeight));
+                                break;
+                            }
                         }
                     }
                 }
                 rtb.Render(dv);
-                PngBitmapEncoder encoder = new PngBitmapEncoder();
+                var encoder = new PngBitmapEncoder();
                 encoder.Frames.Add(BitmapFrame.Create(rtb));
                 using (var stream = File.Create(sfd.FileName)) encoder.Save(stream);
                 MessageBox.Show(GetLocalizedString("ExportSuccess"));
@@ -570,11 +584,11 @@ namespace NetworkDiagram
     }
 
     public class DiagramSaveModel {
-        public List<PlacedDevice> Devices { get; set; } = new();
-        public List<ConnectionSaveModel> Connections { get; set; } = new();
+        public List<PlacedDevice> Devices { get; set; } = [];
+        public List<ConnectionSaveModel> Connections { get; set; } = [];
     }
     public class ConnectionSaveModel {
-        public int StartIndex { get; set; }
+        public int StartIndex { get; init; }
         public int EndIndex { get; set; }
         public ConnectionType Type { get; set; }
     }
