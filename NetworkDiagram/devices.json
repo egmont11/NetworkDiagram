@@ -8,12 +8,12 @@
     "IconPath": "Assets/workgroup switch.jpg"
   },
   {
-    "Name": "Server",
-    "IconPath": "Assets/fileserver.jpg"
+    "Name": "L3 Switch",
+    "IconPath": "Assets/layer 3 switch.jpg"
   },
   {
-    "Name": "Storage server",
-    "IconPath": "Assets/storage server.jpg"
+    "Name": "Server",
+    "IconPath": "Assets/fileserver.jpg"
   },
   {
     "Name": "Personal Computer",
