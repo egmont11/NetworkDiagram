@@ -75,9 +75,20 @@ namespace NetworkDiagram
         #region Drag and Drop (Toolbox to Canvas)
         private void Toolbox_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (sender is ListBox { SelectedItem: DeviceTemplate template } listBox)
-                DragDrop.DoDragDrop(listBox, template, DragDropEffects.Copy);
+            if (sender is ListBox listBox)
+            {
+                // Find the item under the mouse instead of relying on SelectedItem
+                var element = e.OriginalSource as DependencyObject;
+                while (element != null && !(element is ListBoxItem))
+                    element = VisualTreeHelper.GetParent(element);
+
+                if (element is ListBoxItem item && item.Content is DeviceTemplate template)
+                {
+                    DragDrop.DoDragDrop(listBox, template, DragDropEffects.Copy);
+                }
+            }
         }
+
 
         private void DiagramCanvas_DragOver(object sender, DragEventArgs e)
         {
