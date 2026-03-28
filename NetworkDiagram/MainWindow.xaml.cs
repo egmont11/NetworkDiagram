@@ -109,7 +109,11 @@ namespace NetworkDiagram
         {
             var template = (DataTemplate)DiagramCanvas.Resources["DeviceTemplate"];
             var contentPresenter = new ContentPresenter { Content = device, ContentTemplate = template };
-            var container = new Border { Child = contentPresenter, Tag = device, Background = Brushes.Transparent };
+            var container = new Border { 
+                Child = contentPresenter, 
+                Tag = device,
+                Style = (Style)Application.Current.Resources["DeviceContainerStyle"]
+            };
 
             Canvas.SetLeft(container, device.X);
             Canvas.SetTop(container, device.Y);
@@ -177,15 +181,31 @@ namespace NetworkDiagram
         private void SelectElement(FrameworkElement element)
         {
             _selectedElements.Add(element);
-            element.Opacity = 0.7;
-            if (element is Line l) l.StrokeThickness = 5;
+            if (element is Border b)
+            {
+                b.BorderBrush = (SolidColorBrush)Application.Current.Resources["AccentBlue"];
+                b.Background = new SolidColorBrush(Color.FromArgb(30, 0, 120, 215)); // Light blue tint
+            }
+            else if (element is Line l)
+            {
+                l.StrokeThickness = 5;
+                l.Opacity = 0.8;
+            }
         }
 
         private void DeselectElement(FrameworkElement element)
         {
             _selectedElements.Remove(element);
-            element.Opacity = 1.0;
-            if (element is Line l) l.StrokeThickness = 3;
+            if (element is Border b)
+            {
+                b.BorderBrush = Brushes.Transparent;
+                b.Background = Brushes.Transparent;
+            }
+            else if (element is Line l)
+            {
+                l.StrokeThickness = 3;
+                l.Opacity = 1.0;
+            }
         }
 
         private void ClearSelection()

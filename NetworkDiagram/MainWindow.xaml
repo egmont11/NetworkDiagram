@@ -6,70 +6,65 @@
         xmlns:local="clr-namespace:NetworkDiagram"
         xmlns:models="clr-namespace:NetworkDiagram.Models"
         mc:Ignorable="d"
-        Title="{DynamicResource AppTitle}" Height="700" Width="1080"
-        Background="#F5F9FF"
+        Title="{DynamicResource AppTitle}" Height="750" Width="1100"
+        Background="{StaticResource BgWhite}"
         KeyDown="Window_KeyDown">
     
-    <Window.Resources>
-        <SolidColorBrush x:Key="HeaderBlue" Color="#004578"/>
-        <SolidColorBrush x:Key="AccentBlue" Color="#0078D7"/>
-        <SolidColorBrush x:Key="SidebarBlue" Color="#E1EEFA"/>
-        <SolidColorBrush x:Key="CanvasGridBlue" Color="#D0E2F2"/>
-
-        <Style x:Key="ModernButton" TargetType="Button">
-            <Setter Property="Background" Value="{StaticResource AccentBlue}"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="Padding" Value="10,5"/>
-            <Setter Property="Margin" Value="5"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Cursor" Value="Hand"/>
-        </Style>
-    </Window.Resources>
-
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="220"/>
+            <ColumnDefinition Width="240"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="60"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Border Grid.Row="0" Grid.ColumnSpan="2" Background="{StaticResource HeaderBlue}" Padding="10">
-            <DockPanel>
-                <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
-                    <TextBlock Text="{DynamicResource AppTitle}" Foreground="White" FontSize="18" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,20,0"/>
-                    <Button Content="{DynamicResource NewBtn}" Style="{StaticResource ModernButton}" Click="NewDiagram_Click"/>
-                    <Button Content="{DynamicResource SaveBtn}" Style="{StaticResource ModernButton}" Click="SaveDiagram_Click"/>
-                    <Button Content="{DynamicResource LoadBtn}" Style="{StaticResource ModernButton}" Click="LoadDiagram_Click"/>
-                    <Button Content="{DynamicResource ExportBtn}" Style="{StaticResource ModernButton}" Click="ExportPng_Click"/>
-                    <Separator Margin="10,0" Background="White" Opacity="0.5"/>
-                    <Button Content="{DynamicResource WireBtn}" Style="{StaticResource ModernButton}" Click="WireTool_Click"/>
-                    <Button Content="{DynamicResource WifiBtn}" Style="{StaticResource ModernButton}" Click="WifiTool_Click"/>
-                    <Button Content="{DynamicResource AddTextBtn}" Style="{StaticResource ModernButton}" Click="AddText_Click"/>
+        <!-- Header -->
+        <Border Grid.Row="0" Grid.ColumnSpan="2" Background="{StaticResource PrimaryBlue}" VerticalAlignment="Stretch">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.3"/>
+            </Border.Effect>
+            <DockPanel Margin="15,0">
+                <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
+                    <TextBlock Text="{DynamicResource AppTitle}" Foreground="White" FontSize="20" FontWeight="Bold" Margin="0,0,30,0"/>
+                    
+                    <Button Content="{DynamicResource NewBtn}" Style="{StaticResource HeaderButtonStyle}" Click="NewDiagram_Click"/>
+                    <Button Content="{DynamicResource SaveBtn}" Style="{StaticResource HeaderButtonStyle}" Click="SaveDiagram_Click"/>
+                    <Button Content="{DynamicResource LoadBtn}" Style="{StaticResource HeaderButtonStyle}" Click="LoadDiagram_Click"/>
+                    <Button Content="{DynamicResource ExportBtn}" Style="{StaticResource HeaderButtonStyle}" Click="ExportPng_Click"/>
+                    
+                    <Rectangle Width="1" Height="24" Fill="White" Opacity="0.3" Margin="15,0"/>
+                    
+                    <Button Content="{DynamicResource WireBtn}" Style="{StaticResource HeaderButtonStyle}" Click="WireTool_Click"/>
+                    <Button Content="{DynamicResource WifiBtn}" Style="{StaticResource HeaderButtonStyle}" Click="WifiTool_Click"/>
+                    <Button Content="{DynamicResource AddTextBtn}" Style="{StaticResource HeaderButtonStyle}" Click="AddText_Click"/>
                 </StackPanel>
                 
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                    <ComboBox x:Name="LangCombo" VerticalAlignment="Center" Width="80" SelectionChanged="LangCombo_SelectionChanged" Margin="10,0,0,0">
-                        <ComboBoxItem Tag="en" IsSelected="True">EN</ComboBoxItem>
-                        <ComboBoxItem Tag="cs">CZ</ComboBoxItem>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <ComboBox x:Name="LangCombo" Width="70" Height="30" SelectionChanged="LangCombo_SelectionChanged">
+                        <ComboBoxItem Tag="en">EN</ComboBoxItem>
+                        <ComboBoxItem Tag="cs" IsSelected="True">CZ</ComboBoxItem>
                     </ComboBox>
                 </StackPanel>
             </DockPanel>
         </Border>
 
-        <Border Grid.Row="1" Grid.Column="0" Background="{StaticResource SidebarBlue}" BorderBrush="{StaticResource CanvasGridBlue}" BorderThickness="0,0,1,0">
-            <DockPanel>
-                <TextBlock Text="{DynamicResource DevicesHeader}" DockPanel.Dock="Top" FontSize="16" FontWeight="SemiBold" Margin="10" Foreground="{StaticResource HeaderBlue}"/>
-                <ListBox x:Name="ToolboxList" Background="Transparent" BorderThickness="0" Margin="5"
+        <!-- Sidebar -->
+        <Border Grid.Row="1" Grid.Column="0" Background="{StaticResource LightBlue}" BorderBrush="{StaticResource GridBlue}" BorderThickness="0,0,1,0">
+            <DockPanel Margin="10,15">
+                <TextBlock Text="{DynamicResource DevicesHeader}" DockPanel.Dock="Top" FontSize="18" FontWeight="Bold" Margin="10,0,10,15" Foreground="{StaticResource PrimaryBlue}"/>
+                <ListBox x:Name="ToolboxList" Style="{StaticResource SidebarListBoxStyle}"
                          PreviewMouseDown="Toolbox_PreviewMouseDown">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <Border BorderBrush="{StaticResource AccentBlue}" BorderThickness="1" CornerRadius="4" Margin="5" Padding="10" Background="White">
+                            <Border Background="White" CornerRadius="8" Padding="12" BorderBrush="{StaticResource GridBlue}" BorderThickness="1">
+                                <Border.Effect>
+                                    <DropShadowEffect BlurRadius="4" ShadowDepth="1" Opacity="0.05"/>
+                                </Border.Effect>
                                 <StackPanel Orientation="Horizontal">
-                                    <Image Source="{Binding IconPath}" Width="32" Height="32" Margin="0,0,10,0"/>
-                                    <TextBlock Text="{Binding Name}" VerticalAlignment="Center" FontWeight="Medium"/>
+                                    <Image Source="{Binding IconPath}" Width="36" Height="36" Margin="0,0,12,0" RenderOptions.BitmapScalingMode="HighQuality"/>
+                                    <TextBlock Text="{Binding Name}" VerticalAlignment="Center" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource TextDark}"/>
                                 </StackPanel>
                             </Border>
                         </DataTemplate>
@@ -78,7 +73,8 @@
             </DockPanel>
         </Border>
 
-        <ScrollViewer Grid.Row="1" Grid.Column="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+        <!-- Canvas Area -->
+        <ScrollViewer Grid.Row="1" Grid.Column="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Background="Transparent">
             <Canvas x:Name="DiagramCanvas" Width="2000" Height="2000" AllowDrop="True"
                     Drop="DiagramCanvas_Drop" DragOver="DiagramCanvas_DragOver"
                     MouseDown="DiagramCanvas_MouseDown"
@@ -87,17 +83,17 @@
                 <Canvas.Background>
                     <VisualBrush TileMode="Tile" Viewport="0,0,40,40" ViewportUnits="Absolute">
                         <VisualBrush.Visual>
-                            <Path Data="M 0 40 L 0 0 L 40 0" Stroke="{StaticResource CanvasGridBlue}" StrokeThickness="0.5"/>
+                            <Path Data="M 0 40 L 0 0 L 40 0" Stroke="{StaticResource GridBlue}" StrokeThickness="0.8"/>
                         </VisualBrush.Visual>
                     </VisualBrush>
                 </Canvas.Background>
                 
                 <Canvas.Resources>
                     <DataTemplate x:Key="DeviceTemplate">
-                        <Border x:Name="DeviceBorder" BorderBrush="Transparent" BorderThickness="2" CornerRadius="4" 
-                                Background="Transparent" Padding="5" MaxWidth="150">
+                        <Border x:Name="DeviceBorder" BorderBrush="Transparent" BorderThickness="2" CornerRadius="8" 
+                                Background="Transparent" Padding="8" MaxWidth="160">
                             <StackPanel>
-                                <Image Source="{Binding IconPath}" Width="48" Height="48" HorizontalAlignment="Center">
+                                <Image Source="{Binding IconPath}" Width="56" Height="56" HorizontalAlignment="Center" RenderOptions.BitmapScalingMode="HighQuality">
                                     <Image.Style>
                                         <Style TargetType="Image">
                                             <Style.Triggers>
@@ -108,13 +104,13 @@
                                         </Style>
                                     </Image.Style>
                                 </Image>
-                                <TextBlock Text="{Binding Name}" FontWeight="Bold" HorizontalAlignment="Center" 
-                                           Foreground="#004578" TextWrapping="Wrap" TextAlignment="Center"/>
+                                <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="12" HorizontalAlignment="Center" 
+                                           Foreground="{StaticResource PrimaryBlue}" TextWrapping="Wrap" TextAlignment="Center" Margin="0,4,0,0"/>
                                 <ItemsControl ItemsSource="{Binding IpAddresses}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <TextBlock Text="{Binding}" FontSize="10" Foreground="#0078D7" 
-                                                       HorizontalAlignment="Center" TextWrapping="Wrap"/>
+                                            <TextBlock Text="{Binding}" FontSize="10" Foreground="{StaticResource AccentBlue}" 
+                                                       HorizontalAlignment="Center" TextWrapping="Wrap" Opacity="0.8"/>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
@@ -124,8 +120,8 @@
                 </Canvas.Resources>
 
                 <!-- Selection rectangle visual -->
-                <Rectangle x:Name="SelectionRect" Stroke="{StaticResource AccentBlue}" StrokeDashArray="2,2" 
-                           Fill="#330078D7" Visibility="Collapsed" Panel.ZIndex="9999"/>
+                <Rectangle x:Name="SelectionRect" Stroke="{StaticResource AccentBlue}" StrokeThickness="1.5" StrokeDashArray="3,3" 
+                           Fill="#220078D7" Visibility="Collapsed" Panel.ZIndex="9999" RadiusX="2" RadiusY="2" IsHitTestVisible="False"/>
             </Canvas>
         </ScrollViewer>
     </Grid>
