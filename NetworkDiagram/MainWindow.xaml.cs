@@ -30,11 +30,84 @@ namespace NetworkDiagram
         private readonly Dictionary<Connection, Line> _connectionLines = new();
         private readonly Dictionary<PlacedDevice, FrameworkElement> _deviceElements = new();
 
+        // Panning and Zooming
+        private Point _lastPanPoint;
+        private bool _isPanning;
+
         public MainWindow()
         {
             InitializeComponent();
             LoadTemplates();
+            this.Loaded += MainWindow_Loaded;
         }
+
+        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            CenterView();
+        }
+
+        private void CenterView()
+        {
+            // Center logically on (20000, 20000) minus half the viewport size to put 0,0 in the middle
+            CanvasTranslate.X = -20000 + (CanvasViewport.ActualWidth / 2);
+            CanvasTranslate.Y = -20000 + (CanvasViewport.ActualHeight / 2);
+            CanvasScale.ScaleX = 1.0;
+            CanvasScale.ScaleY = 1.0;
+        }
+
+        #region Panning and Zooming
+        private void Viewport_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Middle)
+            {
+                _isPanning = true;
+                _lastPanPoint = e.GetPosition(CanvasViewport);
+                CanvasViewport.CaptureMouse();
+            }
+        }
+
+        private void Viewport_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (_isPanning)
+            {
+                Point currentPoint = e.GetPosition(CanvasViewport);
+                double deltaX = currentPoint.X - _lastPanPoint.X;
+                double deltaY = currentPoint.Y - _lastPanPoint.Y;
+
+                CanvasTranslate.X += deltaX;
+                CanvasTranslate.Y += deltaY;
+
+                _lastPanPoint = currentPoint;
+            }
+        }
+
+        private void Viewport_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Middle)
+            {
+                _isPanning = false;
+                CanvasViewport.ReleaseMouseCapture();
+            }
+        }
+
+        private void Viewport_MouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            double zoom = e.Delta > 0 ? 1.1 : 0.9;
+            
+            double newScale = CanvasScale.ScaleX * zoom;
+            if (newScale < 0.1 || newScale > 5) return;
+
+            Point mousePos = e.GetPosition(DiagramCanvas);
+
+            // Zoom centered on mouse
+            CanvasScale.ScaleX = newScale;
+            CanvasScale.ScaleY = newScale;
+
+            Point newMousePos = e.GetPosition(DiagramCanvas);
+            CanvasTranslate.X += (newMousePos.X - mousePos.X) * CanvasScale.ScaleX;
+            CanvasTranslate.Y += (newMousePos.Y - mousePos.Y) * CanvasScale.ScaleY;
+        }
+        #endregion
 
         private void LoadTemplates()
         {
@@ -457,9 +530,13 @@ namespace NetworkDiagram
         {
             _currentDiagram = new Diagram();
             DiagramCanvas.Children.Clear();
+            // Re-add selection rectangle after clearing
+            if (SelectionRect != null) DiagramCanvas.Children.Add(SelectionRect);
+            
             _connectionLines.Clear();
             _deviceElements.Clear();
             ClearSelection();
+            CenterView();
         }
 
         private void SaveDiagram_Click(object sender, RoutedEventArgs e)
@@ -497,14 +574,34 @@ namespace NetworkDiagram
             }
 
             DiagramCanvas.Children.Clear();
+            // Re-add selection rectangle after clearing
+            if (SelectionRect != null) DiagramCanvas.Children.Add(SelectionRect);
+            
             _connectionLines.Clear();
             _deviceElements.Clear();
             ClearSelection();
+
             foreach (var device in _currentDiagram.Devices) RenderDevice(device);
             foreach (var conn in model.Connections.Select(cModel => new Connection { StartDevice = _currentDiagram.Devices[cModel.StartIndex], EndDevice = _currentDiagram.Devices[cModel.EndIndex], Type = cModel.Type }))
             {
                 _currentDiagram.Connections.Add(conn);
                 RenderConnection(conn);
+            }
+
+            // Center on loaded content
+            if (_currentDiagram.Devices.Count > 0)
+            {
+                double minX = _currentDiagram.Devices.Min(d => d.X);
+                double minY = _currentDiagram.Devices.Min(d => d.Y);
+                double maxX = _currentDiagram.Devices.Max(d => d.X);
+                double maxY = _currentDiagram.Devices.Max(d => d.Y);
+
+                CanvasTranslate.X = -((minX + maxX) / 2) * CanvasScale.ScaleX + (CanvasViewport.ActualWidth / 2);
+                CanvasTranslate.Y = -((minY + maxY) / 2) * CanvasScale.ScaleY + (CanvasViewport.ActualHeight / 2);
+            }
+            else
+            {
+                CenterView();
             }
         }
 
