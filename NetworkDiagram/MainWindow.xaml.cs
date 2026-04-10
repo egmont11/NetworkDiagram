@@ -607,7 +607,14 @@ namespace NetworkDiagram
 
         private void WireTool_Click(object sender, RoutedEventArgs e) => _activeTool = ConnectionType.Wire;
         private void WifiTool_Click(object sender, RoutedEventArgs e) => _activeTool = ConnectionType.Wifi;
-        private void AddText_Click(object sender, RoutedEventArgs e) => AddDeviceToCanvas(new DeviceTemplate { Name = "Note", IconPath = "" }, 100, 100);
+        private void AddText_Click(object sender, RoutedEventArgs e)
+        {
+            // Center of the current viewport in canvas coordinates
+            double centerX = (CanvasViewport.ActualWidth / 2 - CanvasTranslate.X) / CanvasScale.ScaleX;
+            double centerY = (CanvasViewport.ActualHeight / 2 - CanvasTranslate.Y) / CanvasScale.ScaleY;
+            
+            AddDeviceToCanvas(new DeviceTemplate { Name = "Note", IconPath = "" }, centerX, centerY);
+        }
 
         private void ExportPng_Click(object sender, RoutedEventArgs e)
         {

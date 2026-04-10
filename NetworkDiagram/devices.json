@@ -54,5 +54,9 @@
   {
     "Name": "Wireless Router",
     "IconPath": "Assets/wireless router.jpg"
+  },
+  {
+    "Name": "Video camera",
+    "IconPath": "Assets/video camera.jpg"
   }
 ]
