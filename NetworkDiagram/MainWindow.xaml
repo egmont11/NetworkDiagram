@@ -103,7 +103,7 @@
                         <Border x:Name="DeviceBorder" BorderBrush="Transparent" BorderThickness="2" CornerRadius="8" 
                                 Background="Transparent" Padding="8" MaxWidth="160">
                             <StackPanel>
-                                <Image Source="{Binding IconPath}" Width="56" Height="56" HorizontalAlignment="Center" RenderOptions.BitmapScalingMode="HighQuality">
+                                <Image Source="{Binding IconPath}" MaxWidth="64" MaxHeight="64" HorizontalAlignment="Center" RenderOptions.BitmapScalingMode="HighQuality">
                                     <Image.Style>
                                         <Style TargetType="Image">
                                             <Style.Triggers>

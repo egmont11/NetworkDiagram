@@ -464,13 +464,13 @@ namespace NetworkDiagram
             if (!_deviceElements.TryGetValue(conn.StartDevice, out var startElem) ||
                 !_deviceElements.TryGetValue(conn.EndDevice, out var endElem)) return;
             
-            if (startElem.ActualWidth == 0) startElem.UpdateLayout();
-            if (endElem.ActualWidth == 0) endElem.UpdateLayout();
+            if (startElem.ActualWidth == 0 || startElem.ActualHeight == 0) startElem.UpdateLayout();
+            if (endElem.ActualWidth == 0 || endElem.ActualHeight == 0) endElem.UpdateLayout();
 
             line.X1 = conn.StartDevice.X + (startElem.ActualWidth / 2);
-            line.Y1 = conn.StartDevice.Y + 24;
+            line.Y1 = conn.StartDevice.Y + (startElem.ActualHeight / 2);
             line.X2 = conn.EndDevice.X + (endElem.ActualWidth / 2);
-            line.Y2 = conn.EndDevice.Y + 24;
+            line.Y2 = conn.EndDevice.Y + (endElem.ActualHeight / 2);
         }
 
         private void Window_KeyDown(object sender, KeyEventArgs e)
