@@ -1,4 +1,3 @@
 <Solution>
   <Project Path="NetworkDiagram/NetworkDiagram.csproj" />
-  <Project Path="NetworkDiagramAvalonia/NetworkDiagramAvalonia.csproj" />
 </Solution>

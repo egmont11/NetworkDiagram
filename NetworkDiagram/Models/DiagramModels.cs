@@ -1,11 +1,7 @@
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
-using System.IO;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
-using Avalonia;
 using Avalonia.Data.Converters;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
@@ -20,13 +16,18 @@ namespace NetworkDiagram.Models
 
     public class DeviceTemplate
     {
+        [JsonPropertyName("Name")]
         public string Name { get; init; } = string.Empty;
+        
+        [JsonPropertyName("IconPath")]
         public string IconPath { get; set; } = string.Empty;
     }
 
     public class PlacedDevice : INotifyPropertyChanged
     {
         private string _name = string.Empty;
+        
+        [JsonPropertyName("Name")]
         public string Name
         {
             get => _name;
@@ -37,12 +38,14 @@ namespace NetworkDiagram.Models
             }
         }
 
+        [JsonPropertyName("TemplateName")]
         public string TemplateName { get; set; } = string.Empty;
 
         [JsonIgnore]
         public string IconPath { get; set; } = string.Empty;
 
         private double _x;
+        [JsonPropertyName("X")]
         public double X
         {
             get => _x;
@@ -55,6 +58,7 @@ namespace NetworkDiagram.Models
         }
 
         private double _y;
+        [JsonPropertyName("Y")]
         public double Y
         {
             get => _y;
@@ -67,6 +71,7 @@ namespace NetworkDiagram.Models
         }
 
         private List<string> _ipAddresses = [];
+        [JsonPropertyName("IpAddresses")]
         public List<string> IpAddresses
         {
             get => _ipAddresses;
@@ -77,7 +82,9 @@ namespace NetworkDiagram.Models
             }
         }
 
+        [JsonIgnore]
         public double CenterX => X + 50; 
+        [JsonIgnore]
         public double CenterY => Y + 40;
 
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -107,7 +114,7 @@ namespace NetworkDiagram.Models
 
         public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            if (value is string path && !string.IsNullOrEmpty(path))
+            if (value is string path && !string.IsNullOrWhiteSpace(path))
             {
                 try
                 {
@@ -117,12 +124,17 @@ namespace NetworkDiagram.Models
                     if (File.Exists(path))
                         return new Bitmap(path);
 
-                    // Try as relative avares
-                    var uri = new Uri($"avares://NetworkDiagram/{path.Replace("\\", "/")}");
+                    string uriPath = path.Replace("\\", "/");
+                    if (!uriPath.StartsWith("Assets/")) uriPath = "Assets/" + uriPath.TrimStart('/');
+                    
+                    string escapedPath = uriPath.Replace(" ", "%20");
+                    var uri = new Uri($"avares://NetworkDiagram/{escapedPath}");
+                    
                     return new Bitmap(AssetLoader.Open(uri));
                 }
-                catch
+                catch (Exception ex)
                 {
+                    Console.WriteLine($"[ImageConverter] Error loading '{path}': {ex.Message}");
                     return null;
                 }
             }
@@ -133,12 +145,21 @@ namespace NetworkDiagram.Models
     }
 
     public class DiagramSaveModel {
+        [JsonPropertyName("Devices")]
         public List<PlacedDevice> Devices { get; set; } = [];
+        
+        [JsonPropertyName("Connections")]
         public List<ConnectionSaveModel> Connections { get; set; } = [];
     }
+    
     public class ConnectionSaveModel {
+        [JsonPropertyName("StartIndex")]
         public int StartIndex { get; set; }
+        
+        [JsonPropertyName("EndIndex")]
         public int EndIndex { get; set; }
+        
+        [JsonPropertyName("Type")]
         public ConnectionType Type { get; set; }
     }
 }

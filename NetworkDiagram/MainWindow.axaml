@@ -55,7 +55,7 @@
             <DockPanel Margin="10,15">
                 <TextBlock Text="{DynamicResource DevicesHeader}" DockPanel.Dock="Top" FontSize="18" FontWeight="Bold" Margin="10,0,10,15" Foreground="{DynamicResource PrimaryBlue}"/>
                 <ListBox x:Name="ToolboxList" Classes="SidebarListBoxStyle"
-                         PointerPressed="Toolbox_PointerPressed">
+                         PointerMoved="Toolbox_PointerMoved">
                     <ListBox.ItemTemplate>
                         <DataTemplate x:DataType="models:DeviceTemplate">
                             <Border Background="White" CornerRadius="8" Padding="12" BorderBrush="{DynamicResource GridBlue}" BorderThickness="1">
@@ -72,24 +72,24 @@
 
         <!-- Canvas Area -->
         <Panel Grid.Row="1" Grid.Column="1" x:Name="CanvasViewport" ClipToBounds="True" Background="Transparent"
+              DragDrop.AllowDrop="True"
               PointerPressed="Viewport_PointerPressed"
               PointerMoved="Viewport_PointerMoved"
               PointerReleased="Viewport_PointerReleased"
               PointerWheelChanged="Viewport_PointerWheelChanged">
             
             <Canvas x:Name="DiagramCanvas" Width="40000" Height="40000"
-                    DragDrop.AllowDrop="True"
                     PointerPressed="DiagramCanvas_PointerPressed"
                     PointerMoved="DiagramCanvas_PointerMoved"
                     PointerReleased="DiagramCanvas_PointerReleased">
                 <Canvas.RenderTransform>
                     <TransformGroup>
                         <ScaleTransform ScaleX="1" ScaleY="1"/>
-                        <TranslateTransform X="-20000" Y="-20000"/>
+                        <TranslateTransform X="0" Y="0"/>
                     </TransformGroup>
                 </Canvas.RenderTransform>
                 <Canvas.Background>
-                    <DrawingBrush TileMode="Tile" DestinationRect="0,0,40,40">
+                    <DrawingBrush TileMode="Tile" SourceRect="0,0,40,40" DestinationRect="0,0,40,40">
                         <DrawingBrush.Drawing>
                             <GeometryDrawing>
                                 <GeometryDrawing.Geometry>

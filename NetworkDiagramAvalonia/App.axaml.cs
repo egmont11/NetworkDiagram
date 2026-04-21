@@ -1,12 +1,13 @@
 using Avalonia.Controls.ApplicationLifetimes;
 using System.Net.Mime;
+using Avalonia;
 using Avalonia.Markup.Xaml;
 using NetworkDiagramAvalonia.ViewModels;
 using NetworkDiagramAvalonia.Views;
 
 namespace NetworkDiagramAvalonia;
 
-public partial class App : MediaTypeNames.Application
+public class App : Application
 {
     public override void Initialize()
     {

@@ -3,7 +3,10 @@
   <component name="AvaloniaProject">
     <option name="projectPerEditor">
       <map>
+        <entry key="NetworkDiagram/ExportOptionsWindow.axaml" value="NetworkDiagram/NetworkDiagram.csproj" />
+        <entry key="NetworkDiagram/MainWindow.axaml" value="NetworkDiagram/NetworkDiagram.csproj" />
         <entry key="NetworkDiagramAvalonia/App.axaml" value="NetworkDiagramAvalonia/NetworkDiagramAvalonia.csproj" />
+        <entry key="NetworkDiagramAvalonia/Views/MainWindow.axaml" value="NetworkDiagramAvalonia/NetworkDiagramAvalonia.csproj" />
       </map>
     </option>
   </component>

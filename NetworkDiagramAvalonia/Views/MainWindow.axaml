@@ -1,6 +1,5 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:vm="using:NetworkDiagramAvalonia.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewModels="clr-namespace:NetworkDiagramAvalonia.ViewModels"
@@ -16,6 +15,6 @@
         <viewModels:MainWindowViewModel/>
     </Design.DataContext>
 
-    <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    <TextBlock Text="" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 
 </Window>

@@ -1,0 +1,14 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="NetworkDiagram.ExportOptionsWindow"
+        Title="{DynamicResource ExportOptionsTitle}" Width="400" Height="180"
+        WindowStartupLocation="CenterOwner" CanResize="False"
+        Background="{DynamicResource BgWhite}">
+    <StackPanel Margin="20" Spacing="20">
+        <TextBlock Text="{DynamicResource ExportWhiteBgMsg}" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center"/>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="20">
+            <Button Content="Yes (White)" Click="White_Click" Width="100" Classes="ModernButtonStyle"/>
+            <Button Content="No (Transparent)" Click="Transparent_Click" Width="140" Classes="SecondaryButtonStyle"/>
+        </StackPanel>
+    </StackPanel>
+</Window>
