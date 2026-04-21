@@ -1,0 +1,88 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="NetworkDiagram.App"
+             RequestedThemeVariant="Light">
+    <Application.Styles>
+        <FluentTheme />
+
+        <!-- Custom Styles -->
+        <Style Selector="Button.HeaderButtonStyle">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="Margin" Value="4"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <Border x:Name="border" 
+                            Background="{TemplateBinding Background}" 
+                            CornerRadius="4">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Content="{TemplateBinding Content}" Margin="8,4"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter>
+        </Style>
+        <Style Selector="Button.HeaderButtonStyle:pointerover /template/ Border#border">
+            <Setter Property="Background" Value="#20FFFFFF"/>
+        </Style>
+        <Style Selector="Button.HeaderButtonStyle:pressed /template/ Border#border">
+            <Setter Property="Background" Value="#40FFFFFF"/>
+        </Style>
+
+        <Style Selector="Button.ModernButtonStyle">
+            <Setter Property="Background" Value="{DynamicResource AccentBlue}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextLight}"/>
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="Margin" Value="4"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+
+        <Style Selector="Button.SecondaryButtonStyle">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryBlue}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource PrimaryBlue}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="Margin" Value="4"/>
+            <Setter Property="CornerRadius" Value="4"/>
+        </Style>
+
+        <Style Selector="ListBox.SidebarListBoxStyle">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+        <Style Selector="ListBox.SidebarListBoxStyle ListBoxItem">
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Margin" Value="4"/>
+            <Setter Property="CornerRadius" Value="6"/>
+        </Style>
+    </Application.Styles>
+
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceInclude Source="/Localization/Strings.en.axaml"/>
+            </ResourceDictionary.MergedDictionaries>
+
+            <!-- Color Palette -->
+            <Color x:Key="PrimaryBlueColor">#004578</Color>
+            <Color x:Key="AccentBlueColor">#0078D7</Color>
+            <Color x:Key="LightBlueColor">#E1EEFA</Color>
+            <Color x:Key="GridBlueColor">#D0E2F2</Color>
+            <Color x:Key="BgWhiteColor">#F5F9FF</Color>
+            <Color x:Key="TextDarkColor">#1B1B1B</Color>
+            <Color x:Key="TextLightColor">#FFFFFF</Color>
+            <Color x:Key="BorderGrayColor">#CCCCCC</Color>
+
+            <SolidColorBrush x:Key="PrimaryBlue" Color="{StaticResource PrimaryBlueColor}"/>
+            <SolidColorBrush x:Key="AccentBlue" Color="{StaticResource AccentBlueColor}"/>
+            <SolidColorBrush x:Key="LightBlue" Color="{StaticResource LightBlueColor}"/>
+            <SolidColorBrush x:Key="GridBlue" Color="{StaticResource GridBlueColor}"/>
+            <SolidColorBrush x:Key="BgWhite" Color="{StaticResource BgWhiteColor}"/>
+            <SolidColorBrush x:Key="TextDark" Color="{StaticResource TextDarkColor}"/>
+            <SolidColorBrush x:Key="TextLight" Color="{StaticResource TextLightColor}"/>
+            <SolidColorBrush x:Key="BorderGray" Color="{StaticResource BorderGrayColor}"/>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

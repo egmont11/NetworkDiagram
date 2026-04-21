@@ -1,0 +1,25 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <x:String x:Key="AppTitle">Editor síťových diagramů</x:String>
+    <x:String x:Key="NewBtn">Nový</x:String>
+    <x:String x:Key="SaveBtn">Uložit</x:String>
+    <x:String x:Key="LoadBtn">Načíst</x:String>
+    <x:String x:Key="ExportBtn">Exportovat PNG</x:String>
+    <x:String x:Key="WireBtn">Kabelové připojení</x:String>
+    <x:String x:Key="WifiBtn">Bezdrátové (WiFi)</x:String>
+    <x:String x:Key="AddTextBtn">Přidat text</x:String>
+    <x:String x:Key="DevicesHeader">Zařízení</x:String>
+    
+    <!-- Edit Dialog -->
+    <x:String x:Key="EditTitle">Upravit zařízení</x:String>
+    <x:String x:Key="DeviceNameLabel">Název zařízení:</x:String>
+    <x:String x:Key="IpLabel">IP adresy (jedna na řádek):</x:String>
+    <x:String x:Key="CancelBtn">Zrušit</x:String>
+    <x:String x:Key="SaveDialogBtn">Uložit</x:String>
+    
+    <!-- Messages -->
+    <x:String x:Key="ExportWhiteBgMsg">Chcete bílé pozadí? (Ne = průhlednost)</x:String>
+    <x:String x:Key="ExportOptionsTitle">Možnosti exportu</x:String>
+    <x:String x:Key="ExportSuccess">Export byl úspěšný!</x:String>
+    <x:String x:Key="EmptyDiagramMsg">Diagram je prázdný.</x:String>
+</ResourceDictionary>

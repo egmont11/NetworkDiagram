@@ -1,0 +1,25 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <x:String x:Key="AppTitle">Network Diagram Studio</x:String>
+    <x:String x:Key="NewBtn">New</x:String>
+    <x:String x:Key="SaveBtn">Save</x:String>
+    <x:String x:Key="LoadBtn">Load</x:String>
+    <x:String x:Key="ExportBtn">Export PNG</x:String>
+    <x:String x:Key="WireBtn">Wire Connection</x:String>
+    <x:String x:Key="WifiBtn">Wifi Connection</x:String>
+    <x:String x:Key="AddTextBtn">Add Text</x:String>
+    <x:String x:Key="DevicesHeader">Devices</x:String>
+    
+    <!-- Edit Dialog -->
+    <x:String x:Key="EditTitle">Edit Device</x:String>
+    <x:String x:Key="DeviceNameLabel">Device Name:</x:String>
+    <x:String x:Key="IpLabel">IP Addresses (one per line):</x:String>
+    <x:String x:Key="CancelBtn">Cancel</x:String>
+    <x:String x:Key="SaveDialogBtn">Save</x:String>
+    
+    <!-- Messages -->
+    <x:String x:Key="ExportWhiteBgMsg">Do you want a white background? (No will result in transparency)</x:String>
+    <x:String x:Key="ExportOptionsTitle">Export Options</x:String>
+    <x:String x:Key="ExportSuccess">Export successful!</x:String>
+    <x:String x:Key="EmptyDiagramMsg">Diagram is empty.</x:String>
+</ResourceDictionary>

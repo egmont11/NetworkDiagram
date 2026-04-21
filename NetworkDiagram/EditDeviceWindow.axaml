@@ -1,0 +1,22 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="NetworkDiagram.EditDeviceWindow"
+        Title="{DynamicResource EditTitle}" Height="380" Width="420"
+        WindowStartupLocation="CenterOwner" CanResize="False"
+        Background="{DynamicResource BgWhite}"
+        Icon="/Assets/router.jpg">
+    <Grid Margin="25" RowDefinitions="Auto,Auto,Auto,*,Auto">
+
+        <TextBlock Text="{DynamicResource DeviceNameLabel}" Margin="0,0,0,8" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryBlue}"/>
+        <TextBox x:Name="NameBox" Grid.Row="1" Margin="0,0,0,20"/>
+
+        <TextBlock Grid.Row="2" Text="{DynamicResource IpLabel}" Margin="0,0,0,8" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryBlue}"/>
+        <TextBox x:Name="IpBox" Grid.Row="3" Margin="0,0,0,25" 
+                 AcceptsReturn="True" VerticalContentAlignment="Top" MinHeight="80"/>
+
+        <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="{DynamicResource CancelBtn}" Classes="SecondaryButtonStyle" Click="Cancel_Click" Width="90" Margin="0,0,12,0"/>
+            <Button Content="{DynamicResource SaveDialogBtn}" Classes="ModernButtonStyle" Click="Save_Click" Width="90"/>
+        </StackPanel>
+    </Grid>
+</Window>

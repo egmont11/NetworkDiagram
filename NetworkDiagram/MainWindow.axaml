@@ -1,0 +1,112 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:models="clr-namespace:NetworkDiagram.Models"
+        mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="750"
+        x:Class="NetworkDiagram.MainWindow"
+        Title="{DynamicResource AppTitle}"
+        Background="{DynamicResource BgWhite}"
+        Icon="/Assets/router.jpg"
+        KeyDown="Window_KeyDown">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="240"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="60"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Grid.ColumnSpan="2" Background="{DynamicResource PrimaryBlue}" ZIndex="10">
+            <Border.BoxShadow>
+                <BoxShadows>0 2 10 0 #4D000000</BoxShadows>
+            </Border.BoxShadow>
+            <DockPanel Margin="15,0">
+                <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
+                    <TextBlock Text="{DynamicResource AppTitle}" Foreground="White" FontSize="20" FontWeight="Bold" Margin="0,0,30,0" VerticalAlignment="Center"/>
+                    
+                    <Button Content="{DynamicResource NewBtn}" Classes="HeaderButtonStyle" Click="NewDiagram_Click"/>
+                    <Button Content="{DynamicResource SaveBtn}" Classes="HeaderButtonStyle" Click="SaveDiagram_Click"/>
+                    <Button Content="{DynamicResource LoadBtn}" Classes="HeaderButtonStyle" Click="LoadDiagram_Click"/>
+                    <Button Content="{DynamicResource ExportBtn}" Classes="HeaderButtonStyle" Click="ExportPng_Click"/>
+                    
+                    <Rectangle Width="1" Height="24" Fill="White" Opacity="0.3" Margin="15,0"/>
+                    
+                    <Button Content="{DynamicResource WireBtn}" Classes="HeaderButtonStyle" Click="WireTool_Click"/>
+                    <Button Content="{DynamicResource WifiBtn}" Classes="HeaderButtonStyle" Click="WifiTool_Click"/>
+                    <Button Content="{DynamicResource AddTextBtn}" Classes="HeaderButtonStyle" Click="AddText_Click"/>
+                </StackPanel>
+                
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <ComboBox x:Name="LangCombo" Width="80" Height="34" SelectionChanged="LangCombo_SelectionChanged" VerticalContentAlignment="Center">
+                        <ComboBoxItem Tag="en">EN</ComboBoxItem>
+                        <ComboBoxItem Tag="cs">CZ</ComboBoxItem>
+                    </ComboBox>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <!-- Sidebar -->
+        <Border Grid.Row="1" Grid.Column="0" Background="{DynamicResource LightBlue}" BorderBrush="{DynamicResource GridBlue}" BorderThickness="0,0,1,0">
+            <DockPanel Margin="10,15">
+                <TextBlock Text="{DynamicResource DevicesHeader}" DockPanel.Dock="Top" FontSize="18" FontWeight="Bold" Margin="10,0,10,15" Foreground="{DynamicResource PrimaryBlue}"/>
+                <ListBox x:Name="ToolboxList" Classes="SidebarListBoxStyle"
+                         PointerPressed="Toolbox_PointerPressed">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate x:DataType="models:DeviceTemplate">
+                            <Border Background="White" CornerRadius="8" Padding="12" BorderBrush="{DynamicResource GridBlue}" BorderThickness="1">
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="{Binding IconPath, Converter={x:Static models:ImageConverter.Instance}}" Width="36" Height="36" Margin="0,0,12,0"/>
+                                    <TextBlock Text="{Binding Name}" VerticalAlignment="Center" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource TextDark}"/>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </DockPanel>
+        </Border>
+
+        <!-- Canvas Area -->
+        <Panel Grid.Row="1" Grid.Column="1" x:Name="CanvasViewport" ClipToBounds="True" Background="Transparent"
+              PointerPressed="Viewport_PointerPressed"
+              PointerMoved="Viewport_PointerMoved"
+              PointerReleased="Viewport_PointerReleased"
+              PointerWheelChanged="Viewport_PointerWheelChanged">
+            
+            <Canvas x:Name="DiagramCanvas" Width="40000" Height="40000"
+                    DragDrop.AllowDrop="True"
+                    PointerPressed="DiagramCanvas_PointerPressed"
+                    PointerMoved="DiagramCanvas_PointerMoved"
+                    PointerReleased="DiagramCanvas_PointerReleased">
+                <Canvas.RenderTransform>
+                    <TransformGroup>
+                        <ScaleTransform ScaleX="1" ScaleY="1"/>
+                        <TranslateTransform X="-20000" Y="-20000"/>
+                    </TransformGroup>
+                </Canvas.RenderTransform>
+                <Canvas.Background>
+                    <DrawingBrush TileMode="Tile" DestinationRect="0,0,40,40">
+                        <DrawingBrush.Drawing>
+                            <GeometryDrawing>
+                                <GeometryDrawing.Geometry>
+                                    <PathGeometry Figures="M 0 40 L 0 0 L 40 0" />
+                                </GeometryDrawing.Geometry>
+                                <GeometryDrawing.Pen>
+                                    <Pen Brush="{DynamicResource GridBlue}" Thickness="0.8"/>
+                                </GeometryDrawing.Pen>
+                            </GeometryDrawing>
+                        </DrawingBrush.Drawing>
+                    </DrawingBrush>
+                </Canvas.Background>
+                
+                <!-- Selection rectangle visual -->
+                <Rectangle x:Name="SelectionRect" Stroke="{DynamicResource AccentBlue}" StrokeThickness="1.5" StrokeDashArray="3,3" 
+                           Fill="#220078D7" IsVisible="False" ZIndex="9999" IsHitTestVisible="False"/>
+            </Canvas>
+        </Panel>
+    </Grid>
+</Window>
