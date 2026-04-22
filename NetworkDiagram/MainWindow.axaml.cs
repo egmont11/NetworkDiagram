@@ -78,14 +78,11 @@ namespace NetworkDiagram
         private void CenterView()
         {
             if (CanvasTranslate == null || CanvasScale == null) return;
-            double vw = CanvasViewport.Bounds.Width > 0 ? CanvasViewport.Bounds.Width : 1000;
-            double vh = CanvasViewport.Bounds.Height > 0 ? CanvasViewport.Bounds.Height : 700;
-
             CanvasScale.ScaleX = 1.0;
             CanvasScale.ScaleY = 1.0;
-            // Place canvas center (20000,20000) in viewport center
-            CanvasTranslate.X = vw / 2 - CanvasCenterX;
-            CanvasTranslate.Y = vh / 2 - CanvasCenterY;
+            // Změna na 0,0 aby levý horní roh plátna odpovídal levému hornímu rohu viewportu
+            CanvasTranslate.X = 0;
+            CanvasTranslate.Y = 0;
         }
 
         #region Panning and Zooming
@@ -713,10 +710,9 @@ namespace NetworkDiagram
                         }
                     }
 
-                    // Wait for Avalonia to measure/arrange the newly added controls, then center
+                    // Wait for Avalonia to measure/arrange the newly added controls
                     await Dispatcher.UIThread.InvokeAsync(() => { }, DispatcherPriority.Loaded);
                     await Dispatcher.UIThread.InvokeAsync(() => { }, DispatcherPriority.Render);
-                    CenterOnContent();
                 } catch (Exception ex) {
                     Console.WriteLine("Load failed: " + ex.Message);
                 }
