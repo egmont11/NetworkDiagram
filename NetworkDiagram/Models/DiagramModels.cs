@@ -38,6 +38,19 @@ namespace NetworkDiagram.Models
             }
         }
 
+        private string _description = string.Empty;
+
+        [JsonPropertyName("Description")]
+        public string Description
+        {
+            get => _description;
+            set
+            {
+                _description = value;
+                OnPropertyChanged();
+            }
+        }
+
         [JsonPropertyName("TemplateName")]
         public string TemplateName { get; set; } = string.Empty;
 

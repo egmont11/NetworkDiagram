@@ -13,6 +13,7 @@
     <!-- Edit Dialog -->
     <x:String x:Key="EditTitle">Edit Device</x:String>
     <x:String x:Key="DeviceNameLabel">Device Name:</x:String>
+    <x:String x:Key="DescLabel">Description:</x:String>
     <x:String x:Key="IpLabel">IP Addresses (one per line):</x:String>
     <x:String x:Key="CancelBtn">Cancel</x:String>
     <x:String x:Key="SaveDialogBtn">Save</x:String>

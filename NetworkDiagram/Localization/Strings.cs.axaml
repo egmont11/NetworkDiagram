@@ -11,9 +11,10 @@
     <x:String x:Key="DevicesHeader">Zařízení</x:String>
     
     <!-- Edit Dialog -->
-    <x:String x:Key="EditTitle">Upravit zařízení</x:String>
+    <x:String x:Key="EditTitle">Upravit Zařízení</x:String>
     <x:String x:Key="DeviceNameLabel">Název zařízení:</x:String>
-    <x:String x:Key="IpLabel">IP adresy (jedna na řádek):</x:String>
+    <x:String x:Key="DescLabel">Popis:</x:String>
+    <x:String x:Key="IpLabel">IP Adresy (jedna na řádek):</x:String>
     <x:String x:Key="CancelBtn">Zrušit</x:String>
     <x:String x:Key="SaveDialogBtn">Uložit</x:String>
     

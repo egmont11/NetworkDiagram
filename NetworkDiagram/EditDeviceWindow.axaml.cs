@@ -19,12 +19,14 @@ namespace NetworkDiagram
             InitializeComponent();
             _device = device;
             NameBox.Text = device.Name;
+            DescBox.Text = device.Description;
             IpBox.Text = string.Join(Environment.NewLine, device.IpAddresses);
         }
 
         private void Save_Click(object? sender, RoutedEventArgs e)
         {
             _device.Name = NameBox.Text ?? string.Empty;
+            _device.Description = DescBox.Text ?? string.Empty;
             _device.IpAddresses = (IpBox.Text ?? string.Empty)
                 .Split(new[] { Environment.NewLine, "\n", "\r" }, StringSplitOptions.RemoveEmptyEntries)
                 .ToList();

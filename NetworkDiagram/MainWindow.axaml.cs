@@ -342,6 +342,11 @@ namespace NetworkDiagram
             nameText.Bind(TextBlock.TextProperty, new Avalonia.Data.Binding("Name"));
             stack.Children.Add(nameText);
 
+            var descText = new TextBlock { FontSize = 11, FontStyle = FontStyle.Italic, HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center, TextWrapping = TextWrapping.Wrap, TextAlignment = TextAlignment.Center, Opacity = 0.8 };
+            descText.Bind(TextBlock.TextProperty, new Avalonia.Data.Binding("Description"));
+            descText.Bind(TextBlock.IsVisibleProperty, new Avalonia.Data.Binding("Description") { Converter = Avalonia.Data.Converters.StringConverters.IsNotNullOrEmpty });
+            stack.Children.Add(descText);
+
             var ips = new ItemsControl();
             ips.Bind(ItemsControl.ItemsSourceProperty, new Avalonia.Data.Binding("IpAddresses"));
 
@@ -796,31 +801,60 @@ namespace NetworkDiagram
                             Background = Brushes.White,
                             BorderBrush = (IBrush)Application.Current!.FindResource("GridBlue")!,
                             BorderThickness = new Thickness(1),
-                            Width = original.Bounds.Width > 0 ? original.Bounds.Width : 120,
-                            Height = original.Bounds.Height > 0 ? original.Bounds.Height : 100,
-                            DataContext = device
+                            MinWidth = 100,
+                            MinHeight = 80,
+                            MaxWidth = 180
                         };
 
                         var stack = new StackPanel { Spacing = 4 };
+                        
                         var img = new Image { Width = 64, Height = 64 };
-                        img.Bind(Image.SourceProperty, new Avalonia.Data.Binding("IconPath") { Converter = ImageConverter.Instance });
+                        if (ImageConverter.Instance.Convert(device.IconPath, typeof(IImage), null, System.Globalization.CultureInfo.CurrentCulture) is IImage iimg)
+                        {
+                            img.Source = iimg;
+                        }
 
+                        var primaryBlue = Application.Current!.FindResource("PrimaryBlue");
                         var txt = new TextBlock {
                             Text = device.Name,
                             FontWeight = FontWeight.Bold,
+                            FontSize = 12,
                             HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
-                            Foreground = (IBrush)Application.Current!.FindResource("PrimaryBlue")!
+                            TextWrapping = TextWrapping.Wrap,
+                            TextAlignment = TextAlignment.Center
                         };
+                        if (primaryBlue is IBrush brush) txt.Foreground = brush;
 
                         stack.Children.Add(img);
                         stack.Children.Add(txt);
 
-                        var ips = new ItemsControl { ItemsSource = device.IpAddresses };
-                        ips.ItemTemplate = new FuncDataTemplate<string>((val, _) => new TextBlock {
-                            Text = val, FontSize = 10, HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
-                            Foreground = (IBrush)Application.Current!.FindResource("AccentBlue")!
-                        });
-                        stack.Children.Add(ips);
+                        if (!string.IsNullOrWhiteSpace(device.Description))
+                        {
+                            var desc = new TextBlock {
+                                Text = device.Description,
+                                FontSize = 11,
+                                FontStyle = FontStyle.Italic,
+                                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
+                                TextWrapping = TextWrapping.Wrap,
+                                TextAlignment = TextAlignment.Center,
+                                Opacity = 0.8,
+                                Foreground = Brushes.Black
+                            };
+                            stack.Children.Add(desc);
+                        }
+
+                        var accentBlue = Application.Current!.FindResource("AccentBlue");
+                        foreach (var ip in device.IpAddresses)
+                        {
+                            var tb = new TextBlock {
+                                Text = ip,
+                                FontSize = 10,
+                                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
+                                TextWrapping = TextWrapping.Wrap
+                            };
+                            if (accentBlue is IBrush b) tb.Foreground = b;
+                            stack.Children.Add(tb);
+                        }
 
                         clone.Child = stack;
                         Canvas.SetLeft(clone, device.X - minX);
