@@ -19,7 +19,10 @@
     <x:String x:Key="SaveDialogBtn">Uložit</x:String>
     
     <!-- Messages -->
-    <x:String x:Key="ExportWhiteBgMsg">Chcete bílé pozadí? (Ne = průhlednost)</x:String>
+    <x:String x:Key="ExportWhiteBgMsg">Vyberte styl pozadí a barev:</x:String>
+    <x:String x:Key="ExportWhiteBtn">Bílé pozadí</x:String>
+    <x:String x:Key="ExportTransparentBtn">Průhledné pozadí</x:String>
+    <x:String x:Key="ExportBWBtn">Pro tisk (šedotisk)</x:String>
     <x:String x:Key="ExportOptionsTitle">Možnosti exportu</x:String>
     <x:String x:Key="ExportSuccess">Export byl úspěšný!</x:String>
     <x:String x:Key="EmptyDiagramMsg">Diagram je prázdný.</x:String>

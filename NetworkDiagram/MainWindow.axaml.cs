@@ -18,6 +18,7 @@ using Avalonia.Media.Imaging;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
+using System.Runtime.InteropServices;
 using NetworkDiagram.Models;
 using Avalonia.Controls.Templates;
 
@@ -739,8 +740,8 @@ namespace NetworkDiagram
             if (_currentDiagram.Devices.Count == 0) return;
 
             var prompt = new ExportOptionsWindow();
-            var result = await prompt.ShowDialog<bool?>(this);
-            if (result == null) return;
+            var result = await prompt.ShowDialog<ExportOption>(this);
+            if (result == ExportOption.Cancel) return;
 
             var topLevel = GetTopLevel(this);
             if (topLevel == null) return;
@@ -766,7 +767,7 @@ namespace NetworkDiagram
                 var tempCanvas = new Canvas {
                     Width = width,
                     Height = height,
-                    Background = result.Value ? Brushes.White : Brushes.Transparent
+                    Background = (result == ExportOption.White || result == ExportOption.BlackAndWhite) ? Brushes.White : Brushes.Transparent
                 };
 
                 // Create a container to host temp canvas for rendering
@@ -781,13 +782,22 @@ namespace NetworkDiagram
                 var textDark = Application.Current!.FindResource("TextDark") as IBrush ?? Brushes.Black;
                 var gridBlue = Application.Current!.FindResource("GridBlue") as IBrush;
 
+                bool isGrayscale = result == ExportOption.BlackAndWhite;
+                if (isGrayscale)
+                {
+                    primaryBlue = Brushes.Black;
+                    accentBlue = Brushes.Black;
+                    textDark = Brushes.Black;
+                    gridBlue = Brushes.Black;
+                }
+
                 // 1. Draw connections
                 foreach (var conn in _currentDiagram.Connections)
                 {
                     if (_connectionLines.TryGetValue(conn, out var line))
                     {
                         var tempLine = new Line {
-                            Stroke = line.Stroke,
+                            Stroke = isGrayscale ? Brushes.Black : line.Stroke,
                             StrokeThickness = line.StrokeThickness,
                             StrokeDashArray = line.StrokeDashArray,
                             StartPoint = new Point(line.StartPoint.X - minX, line.StartPoint.Y - minY),
@@ -808,7 +818,7 @@ namespace NetworkDiagram
                             Padding = new Thickness(12),
                             Background = Brushes.White,
                             BorderBrush = gridBlue ?? Brushes.Blue,
-                            BorderThickness = new Thickness(1),
+                            BorderThickness = new Thickness(isGrayscale ? 2 : 1),
                             MinWidth = 100,
                             MinHeight = 80,
                             MaxWidth = 180
@@ -825,7 +835,7 @@ namespace NetworkDiagram
                         var txt = new TextBlock {
                             Text = device.Name,
                             FontWeight = FontWeight.Bold,
-                            FontSize = 12,
+                            FontSize = isGrayscale ? 14 : 12,
                             HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
                             TextWrapping = TextWrapping.Wrap,
                             TextAlignment = TextAlignment.Center,
@@ -839,13 +849,14 @@ namespace NetworkDiagram
                         {
                             var desc = new TextBlock {
                                 Text = device.Description,
-                                FontSize = 11,
+                                FontSize = isGrayscale ? 18 : 11,
+                                FontWeight = isGrayscale ? FontWeight.Bold : FontWeight.Normal,
                                 FontStyle = FontStyle.Italic,
                                 HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
                                 TextWrapping = TextWrapping.Wrap,
                                 TextAlignment = TextAlignment.Center,
                                 Foreground = textDark,
-                                Opacity = 0.8
+                                Opacity = isGrayscale ? 1.0 : 0.8
                             };
                             stack.Children.Add(desc);
                         }
@@ -854,7 +865,8 @@ namespace NetworkDiagram
                         {
                             var tb = new TextBlock {
                                 Text = ip,
-                                FontSize = 10,
+                                FontSize = isGrayscale ? 14 : 10,
+                                FontWeight = isGrayscale ? FontWeight.Bold : FontWeight.Normal,
                                 HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
                                 TextWrapping = TextWrapping.Wrap,
                                 Foreground = accentBlue
@@ -876,8 +888,65 @@ namespace NetworkDiagram
                 await Task.Delay(100);
                 rtb.Render(container);
 
-                using var stream = await file.OpenWriteAsync();
-                rtb.Save(stream);
+                if (result == ExportOption.BlackAndWhite)
+                {
+                    using var ms = new MemoryStream();
+                    rtb.Save(ms);
+                    ms.Position = 0;
+                    var wb = WriteableBitmap.Decode(ms);
+                    ApplyGrayscale(wb);
+                    using var stream = await file.OpenWriteAsync();
+                    wb.Save(stream);
+                }
+                else
+                {
+                    using var stream = await file.OpenWriteAsync();
+                    rtb.Save(stream);
+                }
+            }
+        }
+
+        private void ApplyGrayscale(WriteableBitmap bitmap)
+        {
+            using (var lockedBitmap = bitmap.Lock())
+            {
+                int totalBytes = lockedBitmap.RowBytes * lockedBitmap.Size.Height;
+                byte[] buffer = new byte[totalBytes];
+                Marshal.Copy(lockedBitmap.Address, buffer, 0, totalBytes);
+
+                for (int y = 0; y < lockedBitmap.Size.Height; y++)
+                {
+                    int rowOffset = y * lockedBitmap.RowBytes;
+                    for (int x = 0; x < lockedBitmap.Size.Width; x++)
+                    {
+                        int i = rowOffset + x * 4;
+                        if (i + 3 >= totalBytes) continue;
+
+                        byte b = buffer[i];
+                        byte g = buffer[i + 1];
+                        byte r = buffer[i + 2];
+                        byte a = buffer[i + 3];
+
+                        if (a < 128)
+                        {
+                            // Transparent -> White
+                            buffer[i] = 255;
+                            buffer[i + 1] = 255;
+                            buffer[i + 2] = 255;
+                        }
+                        else
+                        {
+                            // Standard luminance for grayscale
+                            byte val = (byte)(0.299 * r + 0.587 * g + 0.114 * b);
+                            buffer[i] = val;
+                            buffer[i + 1] = val;
+                            buffer[i + 2] = val;
+                        }
+                        buffer[i + 3] = 255; // Always opaque for printing
+                    }
+                }
+
+                Marshal.Copy(buffer, 0, lockedBitmap.Address, totalBytes);
             }
         }
         #endregion
