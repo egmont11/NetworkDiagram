@@ -342,7 +342,9 @@ namespace NetworkDiagram
             nameText.Bind(TextBlock.TextProperty, new Avalonia.Data.Binding("Name"));
             stack.Children.Add(nameText);
 
+            var textDark = Application.Current!.FindResource("TextDark");
             var descText = new TextBlock { FontSize = 11, FontStyle = FontStyle.Italic, HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center, TextWrapping = TextWrapping.Wrap, TextAlignment = TextAlignment.Center, Opacity = 0.8 };
+            if (textDark is IBrush td) descText.Foreground = td;
             descText.Bind(TextBlock.TextProperty, new Avalonia.Data.Binding("Description"));
             descText.Bind(TextBlock.IsVisibleProperty, new Avalonia.Data.Binding("Description") { Converter = Avalonia.Data.Converters.StringConverters.IsNotNullOrEmpty });
             stack.Children.Add(descText);
@@ -773,6 +775,12 @@ namespace NetworkDiagram
 
                 var rtb = new RenderTargetBitmap(new PixelSize(width, height), new Vector(96, 96));
 
+                // Fetch resources once for efficiency and consistency
+                var primaryBlue = Application.Current!.FindResource("PrimaryBlue") as IBrush;
+                var accentBlue = Application.Current!.FindResource("AccentBlue") as IBrush;
+                var textDark = Application.Current!.FindResource("TextDark") as IBrush ?? Brushes.Black;
+                var gridBlue = Application.Current!.FindResource("GridBlue") as IBrush;
+
                 // 1. Draw connections
                 foreach (var conn in _currentDiagram.Connections)
                 {
@@ -799,7 +807,7 @@ namespace NetworkDiagram
                             CornerRadius = new CornerRadius(8),
                             Padding = new Thickness(12),
                             Background = Brushes.White,
-                            BorderBrush = (IBrush)Application.Current!.FindResource("GridBlue")!,
+                            BorderBrush = gridBlue ?? Brushes.Blue,
                             BorderThickness = new Thickness(1),
                             MinWidth = 100,
                             MinHeight = 80,
@@ -808,22 +816,21 @@ namespace NetworkDiagram
 
                         var stack = new StackPanel { Spacing = 4 };
                         
-                        var img = new Image { Width = 64, Height = 64 };
+                        var img = new Image { Width = 64, Height = 64, HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center };
                         if (ImageConverter.Instance.Convert(device.IconPath, typeof(IImage), null, System.Globalization.CultureInfo.CurrentCulture) is IImage iimg)
                         {
                             img.Source = iimg;
                         }
 
-                        var primaryBlue = Application.Current!.FindResource("PrimaryBlue");
                         var txt = new TextBlock {
                             Text = device.Name,
                             FontWeight = FontWeight.Bold,
                             FontSize = 12,
                             HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
                             TextWrapping = TextWrapping.Wrap,
-                            TextAlignment = TextAlignment.Center
+                            TextAlignment = TextAlignment.Center,
+                            Foreground = primaryBlue
                         };
-                        if (primaryBlue is IBrush brush) txt.Foreground = brush;
 
                         stack.Children.Add(img);
                         stack.Children.Add(txt);
@@ -837,22 +844,21 @@ namespace NetworkDiagram
                                 HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
                                 TextWrapping = TextWrapping.Wrap,
                                 TextAlignment = TextAlignment.Center,
-                                Opacity = 0.8,
-                                Foreground = Brushes.Black
+                                Foreground = textDark,
+                                Opacity = 0.8
                             };
                             stack.Children.Add(desc);
                         }
 
-                        var accentBlue = Application.Current!.FindResource("AccentBlue");
                         foreach (var ip in device.IpAddresses)
                         {
                             var tb = new TextBlock {
                                 Text = ip,
                                 FontSize = 10,
                                 HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
-                                TextWrapping = TextWrapping.Wrap
+                                TextWrapping = TextWrapping.Wrap,
+                                Foreground = accentBlue
                             };
-                            if (accentBlue is IBrush b) tb.Foreground = b;
                             stack.Children.Add(tb);
                         }
 
